@@ -1,12 +1,12 @@
 from django.db import models
-from django.contrib.auth import User
+from django.contrib.auth.models import User
 from datetime import datetime
 
 
 class Author(models.Model):
     rating_auth = models.IntegerField()
 
-    one_to_one_rel = models.OneToOneField(User)
+    one_to_one_rel = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def update_rating(self, rating_auth):
         sum_rat_post = Post.rating_post * 3
@@ -34,8 +34,8 @@ class Post(models.Model):
     content = models.TextField()
     rating_post = models.IntegerField()
 
-    one_to_many_rel = models.ForeignKey(Author)
-    many_to_many_rel = models.ManyToManyField(Category)
+    one_to_many_rel = models.ForeignKey(Author, on_delete=models.CASCADE)
+    many_to_many_rel = models.ManyToManyField(Category, through='PostCategory')
 
     def like(self):
         self.rating_post += 1
@@ -46,7 +46,7 @@ class Post(models.Model):
         self.save()
 
     def preview(self):
-        prev = self.content[:124]
+        prev = self.content[:124] + '...'
         return prev
 
 
