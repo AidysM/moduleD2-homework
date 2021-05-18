@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Sum
 from datetime import datetime
 
 
@@ -12,11 +13,26 @@ class Author(models.Model):
     def __str__(self):
         return self.author
 
-    def update_rating(self, rating):
-        sum_rat_post = Post.objects.filter(one_to_many_rel=Author).rating_post * 3
-        sum_rat_comm = Comment.objects.filter(one2many_user=User).rating_comm
-        sum_rat_auth = Comment.objects.filter(one2many_post=Post, one2many_user=User).rating_auth
-        self.rating_auth = sum_rat_post + sum_rat_comm + sum_rat_auth
+    # .aggregate(Sum("rating"))
+    def update_rating(self, rating_auth):
+        user = Author.objects.get(self.author)
+        sum_rat_post = 0
+        posts = user.post_set.all()
+        for post in posts:
+            sum_rat_post += post.rating_post * 3
+
+        # usr =
+        sum_rat_comm = 0
+        comments = Comment.objects.filter(one2many_user=User.pk)
+        for comm in comments:
+            sum_rat_comm += comm.rating_comm
+
+        sum_rat_auth = 0
+        comments_posts = Comment.objects.filter(one2many_post=Post.pk, one2many_user=User.pk)
+        for cp in comments_posts:
+            sum_rat_auth += comments_posts.rating_comm
+
+        self.rating_auth = sum_rat_post + sum_rat_comm + sum_rat_auth + rating
         self.save()
 
 

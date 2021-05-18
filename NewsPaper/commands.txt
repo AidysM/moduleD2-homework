@@ -1,17 +1,24 @@
 from django.contrib.auth.models import User
+
 user = User.objects.create_user('Иван', 'ivan@newspaper.com', 'ivanpass')
 user.save()
 user_petya = User.objects.create_user('Петя', 'petya@newspaper.com', 'petyapass')
 user_petya.save()
 
+
+from news.models import Author
+
 ivan = Author.objects.create(author='Ivan', one_to_one_rel=user)
 petya = Author.objects.create(author='Petya', one_to_one_rel=user_petya)
 
+
 from news.models import Category
+
 sport = Category.objects.create(category='Спорт')
 politic = Category.objects.create(category='Политика')
 education = Category.objects.create(category='Образование')
 it = Category.objects.create(category='ИТ')
+
 
 from news.models import Post
 
@@ -28,4 +35,34 @@ education = Category.objects.get(category='Образование')
 new1.many_to_many_rel.add(it, education)
 new1.st_or_new = "NE"
 new1.save()
+
 post1.many_to_many_rel.add(education)
+
+
+from news.models import Comment
+
+comm1 = Comment.objects.create(comment='Комментарий от Ивана 1', one2many_post=post1, one2many_user=user_petya)
+comm2 = Comment.objects.create(comment='Комментарий от Ивана 1', one2many_post=post2, one2many_user=user)
+comm3 = Comment.objects.create(comment='Комментарий от Пети 2', one2many_post=new1, one2many_user=user_petya)
+comm4 = Comment.objects.create(comment='Комментарий от Ивана 2', one2many_post=new1, one2many_user=user)
+comm1.comment = "Комментарий от Пети 1"
+comm1.save()
+
+
+comm1.like()
+comm1.like()
+comm1.dislike()
+comm2.like()
+comm3.like()
+comm2.like()
+comm3.like()
+comm4.like()
+
+post1.like()
+post1.like()
+post2.like()
+post2.like()
+new1.like()
+new1.like()
+new1.like()
+
