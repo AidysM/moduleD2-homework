@@ -12,7 +12,7 @@ class Author(models.Model):
     def __str__(self):
         return self.author
 
-    def update_rating(self, self.rating_auth):
+    def update_rating(self, rating):
         sum_rat_post = Post.objects.filter(one_to_many_rel=Author).rating_post * 3
         sum_rat_comm = Comment.objects.filter(one2many_user=User).rating_comm
         sum_rat_auth = Comment.objects.filter(one2many_post=Post, one2many_user=User).rating_auth

@@ -1,0 +1,31 @@
+from django.contrib.auth.models import User
+user = User.objects.create_user('Иван', 'ivan@newspaper.com', 'ivanpass')
+user.save()
+user_petya = User.objects.create_user('Петя', 'petya@newspaper.com', 'petyapass')
+user_petya.save()
+
+ivan = Author.objects.create(author='Ivan', one_to_one_rel=user)
+petya = Author.objects.create(author='Petya', one_to_one_rel=user_petya)
+
+from news.models import Category
+sport = Category.objects.create(category='Спорт')
+politic = Category.objects.create(category='Политика')
+education = Category.objects.create(category='Образование')
+it = Category.objects.create(category='ИТ')
+
+from news.models import Post
+
+post1 = Post(post_name='Первая статья', content='Содержимое статьи 1', one_to_many_rel=ivan)
+post1.save()
+post1.many_to_many_rel.add(it)
+
+post2 = Post.objects.create(post_name='Первая статья Пети', content='Содержимое статьи Пети', one_to_many_rel=petya)
+politics = Category.objects.get(category='Политика')
+post2.many_to_many_rel.add(sport, politics)
+
+new1 = Post.objects.create(post_name='Самая первая новость', content='Разобрался как создавать объекты полей со связями 1toM, MtoM.', one_to_many_rel=ivan)
+education = Category.objects.get(category='Образование')
+new1.many_to_many_rel.add(it, education)
+new1.st_or_new = "NE"
+new1.save()
+post1.many_to_many_rel.add(education)
