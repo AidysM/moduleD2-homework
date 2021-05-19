@@ -14,25 +14,27 @@ class Author(models.Model):
         return self.author
 
     # .aggregate(Sum("rating"))
-    def update_rating(self, rating_auth):
-        user = Author.objects.get(self.author)
+    def update_rating(self):
+        auth = Author.objects.get(author=self.author)
         sum_rat_post = 0
-        posts = user.post_set.all()
+        posts = auth.post_set.all()
         for post in posts:
             sum_rat_post += post.rating_post * 3
 
-        # usr =
+        usr = auth.one_to_one_rel
         sum_rat_comm = 0
-        comments = Comment.objects.filter(one2many_user=User.pk)
+        comments = usr.comment_set.all()
         for comm in comments:
             sum_rat_comm += comm.rating_comm
 
         sum_rat_auth = 0
-        comments_posts = Comment.objects.filter(one2many_post=Post.pk, one2many_user=User.pk)
-        for cp in comments_posts:
-            sum_rat_auth += comments_posts.rating_comm
+        # comments_posts = auth.post_set.comment_set.all()
+        for post in posts:
+            comm_posts = post.comment_set.all()
+            for comm_post in comm_posts:
+                sum_rat_auth += comm_post.rating_comm
 
-        self.rating_auth = sum_rat_post + sum_rat_comm + sum_rat_auth + rating
+        self.rating_auth = sum_rat_post + sum_rat_comm + sum_rat_auth
         self.save()
 
 

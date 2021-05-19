@@ -1,27 +1,24 @@
+# Импорт моделей
 from django.contrib.auth.models import User
+from news.models import Author, Category, Post, Comment
 
+# Создание пользователей
 user = User.objects.create_user('Иван', 'ivan@newspaper.com', 'ivanpass')
 user.save()
 user_petya = User.objects.create_user('Петя', 'petya@newspaper.com', 'petyapass')
 user_petya.save()
 
-
-from news.models import Author
-
+# Создание авторов
 ivan = Author.objects.create(author='Ivan', one_to_one_rel=user)
 petya = Author.objects.create(author='Petya', one_to_one_rel=user_petya)
 
-
-from news.models import Category
-
+# Создание категориев
 sport = Category.objects.create(category='Спорт')
 politic = Category.objects.create(category='Политика')
 education = Category.objects.create(category='Образование')
 it = Category.objects.create(category='ИТ')
 
-
-from news.models import Post
-
+# Создание 2 постов и 1 новость
 post1 = Post(post_name='Первая статья', content='Содержимое статьи 1', one_to_many_rel=ivan)
 post1.save()
 post1.many_to_many_rel.add(it)
@@ -38,9 +35,7 @@ new1.save()
 
 post1.many_to_many_rel.add(education)
 
-
-from news.models import Comment
-
+# Создание комментариев к постам
 comm1 = Comment.objects.create(comment='Комментарий от Ивана 1', one2many_post=post1, one2many_user=user_petya)
 comm2 = Comment.objects.create(comment='Комментарий от Ивана 1', one2many_post=post2, one2many_user=user)
 comm3 = Comment.objects.create(comment='Комментарий от Пети 2', one2many_post=new1, one2many_user=user_petya)
@@ -48,21 +43,52 @@ comm4 = Comment.objects.create(comment='Комментарий от Ивана 2
 comm1.comment = "Комментарий от Пети 1"
 comm1.save()
 
-
+# Лайки и дислайки
 comm1.like()
 comm1.like()
 comm1.dislike()
+comm1.save()
 comm2.like()
+comm2.save()
 comm3.like()
-comm2.like()
-comm3.like()
+comm3.save()
 comm4.like()
+comm4.save()
 
 post1.like()
 post1.like()
+post1.save()
 post2.like()
 post2.like()
+post2.save()
 new1.like()
 new1.like()
 new1.like()
+new1.dislike()
+new1.save()
 
+# Обновление рейтингов
+ivan.update_rating()
+ivan.rating_auth
+petya.update_rating()
+petya.rating_auth
+
+# Лучший пользователь
+best = Author.objects.all().order_by('-rating_auth')[0]
+best_user = best.one_to_one_rel
+print(best_user.username, best.rating_auth)
+
+# Лучшая статья
+best_st = Post.objects.all().order_by('-rating_post')[0]
+print('Лучшая статья:' + best_st.post_name)
+print('Дата создания: ' + str(best_st.created))
+print('Пользователь: ' + str(best_st.one_to_many_rel.one_to_one_rel))
+print('Рейтинг: ' + str(best_st.rating_post))
+print('Превью: ' + best_st.preview())
+
+# И его комментарии
+print('Комментарии:')
+comms = best_st.comment_set.all()
+for c in comms: print(c.created_comm, c.one2many_user, c.rating_comm, c.comment)
+
+# Студент Айдыс Монгуш PWS-70.
