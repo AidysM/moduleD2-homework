@@ -3,10 +3,13 @@
 
 <!-- Название у нас будет products -->
 {% block title %}
-  Статья
+  {{ post.post_name }}
 {% endblock title %}
 
 <!-- В контенте на странице мы выводим сам товар, айди которого было передано в адрес -->
 {% block content %}
-  <h1>{{ post }}</h1>
+  <h1>{{ post.post_name }}</h1>
+  <h3>Дата публикации: {{ post.created | date:'d M Y' }}</h3>
+  <hr>
+  {{ post.content }}
 {% endblock content %}
