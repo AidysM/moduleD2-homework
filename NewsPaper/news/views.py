@@ -1,6 +1,7 @@
 from django.views.generic import ListView, DetailView  # импортируем класс, который говорит нам о том, что
     # в этом представлении мы будем выводить список объектов из БД
 from .models import Post
+from .filters import PostFilter
 
 
 class PostList(ListView):
@@ -29,5 +30,21 @@ class PostDetail(DetailView):
     model = Post # модель всё та же, но мы хотим получать детали конкретно отдельного товара
     template_name = 'post.html' # название шаблона будет product.html
     context_object_name = 'post' # название объекта. в нём будет
+
+
+class Search(ListView):
+    model = Post
+    template_name = 'search.html'
+    context_object_name = 'posts'
+    ordering = ['-created']
+    paginate_by = 10 # поставим постраничный вывод в один элемент
+
+    def get_context_data(self, **kwargs):  # забираем отфильтрованные объекты переопределяя
+            # метод get_context_data у наследуемого класса (привет полиморфизм, мы скучали!!!)
+        context = super().get_context_data(**kwargs)
+        context['filter'] = PostFilter(self.request.GET,
+                                          queryset=self.get_queryset())  # вписываем наш фильтр
+                                                                        # в контекст
+        return context
 
 
